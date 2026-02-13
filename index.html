@@ -6,32 +6,66 @@
 <title>14/2 💖</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
+html, body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow-x:hidden;
+    font-family:'Segoe UI', sans-serif;
+}
 
 body{
-    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    font-family:'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #ff9a9e, #fad0c4, #fbc2eb);
-    overflow:hidden;
     text-align:center;
-    padding:20px;
+    position:relative;
 }
 
+/* Background */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:url("https://images-ssl.gotinder.com/697def8437630a23b875f907/640x800_10646479-c2f0-4bab-91ac-b3ddb8746c7b.jpg");
+    background-size:cover;
+    background-position:center;
+    filter: blur(10px) brightness(0.7);
+    z-index:-2;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:linear-gradient(to bottom right, rgba(255,105,180,0.3), rgba(255,0,150,0.3));
+    z-index:-1;
+}
+
+/* Card */
 .card{
-    background: rgba(255,255,255,0.95);
+    position:relative;
+    background: rgba(255,255,255,0.92);
     padding:30px 20px;
     border-radius:25px;
     max-width:400px;
-    width:100%;
-    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    width:90%;
+    box-shadow:0 15px 40px rgba(0,0,0,0.3);
     z-index:2;
 }
 
-h1{color:#ff3e6c;font-size:24px;margin-bottom:15px;}
-p{color:#555;font-size:16px;line-height:1.5;}
+h1{
+    color:#ff3e6c;
+    font-size:24px;
+    margin-bottom:15px;
+}
+
+p{
+    color:#555;
+    font-size:16px;
+    line-height:1.6;
+}
 
 button{
     margin-top:20px;
@@ -56,20 +90,39 @@ button{
 .heart{
     position:fixed;
     bottom:-10px;
+    pointer-events:none;
     animation: floatUp 4s linear forwards;
 }
 
 @keyframes floatUp{
     0%{transform:translateY(0);opacity:1;}
-    100%{transform:translateY(-100vh);opacity:0;}
+    100%{transform:translateY(-110vh);opacity:0;}
 }
 
-/* Fireworks canvas */
+/* Canvas */
 canvas{
     position:fixed;
-    top:0;
-    left:0;
+    inset:0;
     pointer-events:none;
+}
+
+/* 💐 Overlay bó hoa */
+#flowerOverlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.65);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:120px;
+    z-index:999;
+    display:none;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
 }
 </style>
 </head>
@@ -81,34 +134,48 @@ canvas{
 <div class="card">
     <h1>💖 Chúc Mừng Ngày 14/2 💖</h1>
     <p>
-        Chúc pé mèo Hạnh một ngày thật vui vẻ,  
+        Chúc pé mèo Hạnh một ngày thật vui vẻ,<br>
         hạnh phúc và tràn đầy yêu thương 💖
     </p>
 
-    <button onclick="startLove()">Nhấn vào đây ❤️</button>
+    <button onclick="startLove()">Nhấn vào đây để lấy hoa ❤️</button>
 
     <p id="extraMessage">
-        Mãi luôn xinh đẹp và thành công nhé! 🌟 <br/>
+        Mãi luôn xinh đẹp và thành công nhé! 🌟 <br>
         From Thiện ^^ 💌
     </p>
 </div>
 
-<!-- Nhạc (ẩn, chỉ phát khi bấm nút) -->
-<audio id="bgMusic">
-    <source src="What Makes You Beautiful.mp3" type="audio/mpeg">
+<div id="flowerOverlay">💐💐💐💐💐💐💐💐💐💐💐💐💐💐💐</div>
+
+<audio id="bgMusic" autoplay loop>
+    <source src="music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 function startLove(){
 
-    // Hiện lời chúc
     document.getElementById("extraMessage").style.display="block";
 
-    // Phát nhạc (bắt buộc phải sau khi bấm nút)
-    const music=document.getElementById("bgMusic");
-    music.play();
+    // hiện bó hoa
+    const overlay = document.getElementById("flowerOverlay");
+    overlay.style.display="flex";
 
-    // Tim bay
+    // tự tắt sau 3 giây
+    setTimeout(()=>{
+        overlay.style.display="none";
+    },3000);
+
+    // nhạc
+    const music=document.getElementById("bgMusic");
+    music.play().catch(()=>{});
+
+    createHearts();
+    launchFireworks();
+}
+
+/* Tim bay */
+function createHearts(){
     setInterval(()=>{
         const heart=document.createElement("div");
         heart.className="heart";
@@ -118,16 +185,18 @@ function startLove(){
         document.body.appendChild(heart);
         setTimeout(()=>heart.remove(),4000);
     },300);
-
-    // Pháo hoa
-    launchFireworks();
 }
 
 /* Fireworks */
 const canvas=document.getElementById("fireworks");
 const ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+
+function resizeCanvas(){
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
 
 function launchFireworks(){
     for(let i=0;i<6;i++){
