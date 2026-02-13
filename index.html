@@ -55,16 +55,13 @@ body::after{
     z-index:2;
 }
 
-h1{
+h2{
     color:#ff3e6c;
-    font-size:24px;
-    margin-bottom:15px;
 }
 
 p{
-    color:#555;
-    font-size:16px;
-    line-height:1.6;
+    color:#ff3e6c;
+    font-weight:bold;
 }
 
 button{
@@ -79,14 +76,70 @@ button{
     cursor:pointer;
 }
 
-#extraMessage{
+#extraMessage,
+.show-image-trigger,
+.image-wrapper{
     display:none;
+}
+
+/* Trigger */
+.show-image-trigger{
     margin-top:15px;
     font-weight:bold;
     color:#ff3e6c;
+    cursor:pointer;
+    animation:pulse 1.5s infinite;
 }
 
-/* Hearts */
+@keyframes pulse{
+    0%{opacity:0.6;}
+    50%{opacity:1;}
+    100%{opacity:0.6;}
+}
+
+/* Image wrapper */
+.image-wrapper{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+}
+
+/* Note */
+.click-note{
+    margin-top:15px;
+    margin-bottom:8px;
+    font-size:14px;
+    color:#ff3e6c;
+    animation:bounce 1.5s infinite;
+}
+
+@keyframes bounce{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-5px);}
+}
+
+/* Ảnh fade-in */
+.love-image{
+    width:100%;
+    max-width:260px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.25);
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(20px);
+    transition:all 0.8s ease;
+}
+
+.love-image.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.love-image:hover{
+    transform:scale(1.05);
+}
+
+/* Tim bay */
 .heart{
     position:fixed;
     bottom:-10px;
@@ -99,30 +152,27 @@ button{
     100%{transform:translateY(-110vh);opacity:0;}
 }
 
+/* Hoa rơi */
+.flower{
+    position:fixed;
+    top:-20px;
+    font-size:24px;
+    animation:fall linear forwards;
+    pointer-events:none;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(110vh) rotate(360deg);
+        opacity:0;
+    }
+}
+
 /* Canvas */
 canvas{
     position:fixed;
     inset:0;
     pointer-events:none;
-}
-
-/* 💐 Overlay bó hoa */
-#flowerOverlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.65);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:120px;
-    z-index:999;
-    display:none;
-    animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
 }
 </style>
 </head>
@@ -132,47 +182,87 @@ canvas{
 <canvas id="fireworks"></canvas>
 
 <div class="card">
-    <h1>💖 Chúc Mừng Ngày 14/2 💖</h1>
-    <p>
-        Chúc pé mèo Hạnh một ngày thật vui vẻ,<br>
-        hạnh phúc và tràn đầy yêu thương 💖
-    </p>
+    <h2>💖 Chúc Mừng Ngày 14/2 💖</h2>
 
-    <button onclick="startLove()">Nhấn vào đây ❤️</button>
+    <button id="startLoveBtn" onclick="startLove()">Nhấn vào đây nà ❤️</button>
 
     <p id="extraMessage">
+        Chúc pé mèo Hạnh một ngày thật vui vẻ,<br>
+        hạnh phúc và tràn đầy yêu thương 💖 <br>
         Mãi luôn xinh đẹp và thành công nhé! 🌟 <br>
         From Thiện ^^ 💌
     </p>
+
+    <div id="showImageTrigger" class="show-image-trigger" onclick="showImage()">
+        💌 Nhấn vào đây để xem điều bất ngờ nèee
+    </div>
+
+    <div class="image-wrapper">
+        <div class="click-note">
+            <i>pé mèo nhấn liên tục vào hình ikk 💐</i>
+        </div>
+
+        <img 
+            id="loveImage"
+            src="cat_flower.jpg"
+            class="love-image"
+            onclick="flowerRain()">
+    </div>
 </div>
 
-<div id="flowerOverlay">💐💐💐💐💐💐💐💐💐💐💐💐💐💐💐</div>
-
-<audio id="bgMusic" autoplay loop>
+<audio id="bgMusic" loop>
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
+
+let started = false;
+
 function startLove(){
+    if(started) return;
+    started = true;
 
     document.getElementById("extraMessage").style.display="block";
-
-    const overlay = document.getElementById("flowerOverlay");
-    overlay.style.display="flex";
-    setTimeout(()=>overlay.style.display="none",3000);
-
-    const music=document.getElementById("bgMusic");
-    music.play().catch(()=>{});
+    document.getElementById("showImageTrigger").style.display="block";
+    document.getElementById("startLoveBtn").style.display="none";
+    document.getElementById("bgMusic").play().catch(()=>{});
 
     createHearts();
-
-    // Bắn pháo hoa liên tục mỗi 1.2s
-    setInterval(()=>{
-        explode();
-    },1200);
+    setInterval(explode,1200);
 }
 
-/* ================== Tim bay ================== */
+function showImage(){
+
+    // Ẩn dòng "điều bất ngờ"
+    const trigger = document.getElementById("showImageTrigger");
+    trigger.style.display = "none";
+
+    // Hiện ảnh
+    const wrapper = document.querySelector(".image-wrapper");
+    wrapper.style.display = "flex";
+
+    setTimeout(()=>{
+        document.getElementById("loveImage").classList.add("show");
+    },100);
+}
+
+
+/* Hoa rơi */
+function flowerRain(){
+    for(let i=0;i<25;i++){
+        const flower=document.createElement("div");
+        flower.className="flower";
+        flower.innerHTML="💐";
+        flower.style.left=Math.random()*100+"vw";
+        flower.style.animationDuration=(3+Math.random()*2)+"s";
+        flower.style.fontSize=(20+Math.random()*20)+"px";
+        document.body.appendChild(flower);
+
+        setTimeout(()=>flower.remove(),5000);
+    }
+}
+
+/* Tim bay */
 function createHearts(){
     setInterval(()=>{
         const heart=document.createElement("div");
@@ -185,7 +275,7 @@ function createHearts(){
     },300);
 }
 
-/* ================== Fireworks ================== */
+/* Fireworks */
 const canvas=document.getElementById("fireworks");
 const ctx=canvas.getContext("2d");
 
@@ -196,24 +286,22 @@ function resizeCanvas(){
 resizeCanvas();
 window.addEventListener("resize",resizeCanvas);
 
-let particles = [];
+let particles=[];
 
 function explode(){
     const x=Math.random()*canvas.width;
     const y=Math.random()*canvas.height/2;
 
-    for(let i=0;i<80;i++){
+    for(let i=0;i<60;i++){
         const angle=Math.random()*2*Math.PI;
-        const speed=Math.random()*6+2;
+        const speed=Math.random()*5+2;
 
         particles.push({
-            x:x,
-            y:y,
+            x:x,y:y,
             vx:Math.cos(angle)*speed,
             vy:Math.sin(angle)*speed,
             alpha:1,
             size:2+Math.random()*3,
-            // tông hồng tím valentine
             r:200+Math.random()*55,
             g:Math.random()*100,
             b:150+Math.random()*105
@@ -223,10 +311,10 @@ function explode(){
 
 function animate(){
     requestAnimationFrame(animate);
-
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    particles.forEach((p,index)=>{
+    for(let i=particles.length-1;i>=0;i--){
+        let p=particles[i];
         p.x+=p.vx;
         p.y+=p.vy;
         p.alpha-=0.015;
@@ -236,15 +324,11 @@ function animate(){
         ctx.arc(p.x,p.y,p.size,0,2*Math.PI);
         ctx.fill();
 
-        if(p.alpha<=0){
-            particles.splice(index,1);
-        }
-    });
+        if(p.alpha<=0) particles.splice(i,1);
+    }
 }
-
 animate();
+
 </script>
-
-
 </body>
 </html>
