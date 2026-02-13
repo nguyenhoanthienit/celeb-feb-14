@@ -159,6 +159,7 @@ button{
     font-size:24px;
     animation:fall linear forwards;
     pointer-events:none;
+    z-index:9999;
 }
 
 @keyframes fall{
@@ -252,7 +253,7 @@ function flowerRain(){
     for(let i=0;i<25;i++){
         const flower=document.createElement("div");
         flower.className="flower";
-        flower.innerHTML="💐";
+        flower.innerHTML="🌹";
         flower.style.left=Math.random()*100+"vw";
         flower.style.animationDuration=(3+Math.random()*2)+"s";
         flower.style.fontSize=(20+Math.random()*20)+"px";
