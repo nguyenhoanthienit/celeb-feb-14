@@ -157,24 +157,22 @@ function startLove(){
 
     document.getElementById("extraMessage").style.display="block";
 
-    // hiện bó hoa
     const overlay = document.getElementById("flowerOverlay");
     overlay.style.display="flex";
+    setTimeout(()=>overlay.style.display="none",3000);
 
-    // tự tắt sau 3 giây
-    setTimeout(()=>{
-        overlay.style.display="none";
-    },3000);
-
-    // nhạc
     const music=document.getElementById("bgMusic");
     music.play().catch(()=>{});
 
     createHearts();
-    launchFireworks();
+
+    // Bắn pháo hoa liên tục mỗi 1.2s
+    setInterval(()=>{
+        explode();
+    },1200);
 }
 
-/* Tim bay */
+/* ================== Tim bay ================== */
 function createHearts(){
     setInterval(()=>{
         const heart=document.createElement("div");
@@ -187,7 +185,7 @@ function createHearts(){
     },300);
 }
 
-/* Fireworks */
+/* ================== Fireworks ================== */
 const canvas=document.getElementById("fireworks");
 const ctx=canvas.getContext("2d");
 
@@ -198,49 +196,55 @@ function resizeCanvas(){
 resizeCanvas();
 window.addEventListener("resize",resizeCanvas);
 
-function launchFireworks(){
-    for(let i=0;i<6;i++){
-        setTimeout(()=>explode(),i*400);
-    }
-}
+let particles = [];
 
 function explode(){
     const x=Math.random()*canvas.width;
     const y=Math.random()*canvas.height/2;
 
-    for(let i=0;i<60;i++){
+    for(let i=0;i<80;i++){
         const angle=Math.random()*2*Math.PI;
-        const speed=Math.random()*5+2;
+        const speed=Math.random()*6+2;
 
-        let p={
+        particles.push({
             x:x,
             y:y,
             vx:Math.cos(angle)*speed,
             vy:Math.sin(angle)*speed,
-            alpha:1
-        };
-
-        animate(p);
+            alpha:1,
+            size:2+Math.random()*3,
+            // tông hồng tím valentine
+            r:200+Math.random()*55,
+            g:Math.random()*100,
+            b:150+Math.random()*105
+        });
     }
 }
 
-function animate(p){
-    const interval=setInterval(()=>{
+function animate(){
+    requestAnimationFrame(animate);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    particles.forEach((p,index)=>{
         p.x+=p.vx;
         p.y+=p.vy;
-        p.alpha-=0.02;
+        p.alpha-=0.015;
 
-        ctx.fillStyle="rgba(255,0,150,"+p.alpha+")";
+        ctx.fillStyle=`rgba(${p.r},${p.g},${p.b},${p.alpha})`;
         ctx.beginPath();
-        ctx.arc(p.x,p.y,3,0,2*Math.PI);
+        ctx.arc(p.x,p.y,p.size,0,2*Math.PI);
         ctx.fill();
 
         if(p.alpha<=0){
-            clearInterval(interval);
+            particles.splice(index,1);
         }
-    },20);
+    });
 }
+
+animate();
 </script>
+
 
 </body>
 </html>
